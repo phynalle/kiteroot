@@ -100,16 +100,22 @@ func (e *Element) String() string {
 	return ""
 }
 
+func (e *Element) Text() string {
+	var contents []string
+	for _, child := range e.Children {
+		if child.Type == TextType {
+			contents = append(contents, child.String())
+		}
+	}
+	return strings.Join(contents, "")
+}
+
 func (e *Element) containsAttrs(attrs Attributes) bool {
 	return containsAttrs(e.Attrs, attrs)
 }
 
 func (e *Element) toDocumentString() string {
-	var contents []string
-	for _, child := range e.Children {
-		contents = append(contents, child.String())
-	}
-	return strings.Join(contents, LineSeparator)
+	return e.childrenText()
 }
 
 func (e *Element) toTagString() string {
@@ -130,14 +136,9 @@ func (e *Element) toTagString() string {
 	if e.selfClosing {
 		buf.WriteString(" />")
 	} else {
-		var contents []string
-		for _, child := range e.Children {
-			contents = append(contents, child.String())
-		}
-
 		buf.WriteString(">")
 		buf.WriteRune('\n')
-		buf.WriteString(strings.Join(contents, LineSeparator))
+		buf.WriteString(e.childrenText())
 		buf.WriteRune('\n')
 		buf.WriteString(fmt.Sprintf("</%s>", e.Content))
 	}
@@ -148,16 +149,15 @@ func (e *Element) toTextString() string {
 	return e.Content
 }
 
-type Attributes map[string]string
-
-func containsAttrs(base Attributes, attrs Attributes) bool {
-	for key, val := range attrs {
-		if v, ok := base[key]; ok && v != val {
-			return false
-		}
+func (e *Element) childrenText() string {
+	var contents []string
+	for _, child := range e.Children {
+		contents = append(contents, child.String())
 	}
-	return true
+	return strings.Join(contents, LineSeparator)
 }
+
+type Attributes map[string]string
 
 func MakeAttrs(s ...string) (attrs Attributes) {
 	attrs = make(map[string]string)
@@ -170,6 +170,15 @@ func MakeAttrs(s ...string) (attrs Attributes) {
 		attrs[s[i]] = s[i+1]
 	}
 	return
+}
+
+func containsAttrs(base Attributes, attrs Attributes) bool {
+	for key, val := range attrs {
+		if v, ok := base[key]; ok && v != val {
+			return false
+		}
+	}
+	return true
 }
 
 func init() {
