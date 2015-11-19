@@ -72,19 +72,11 @@ func (e *Element) Attribute(key string) string {
 }
 
 func (e *Element) Find(name string, attrs Attributes) (tags []*Element) {
-	if e.Type == TextType {
-		return
-	}
+	return e.findTag(name, attrs)
+}
 
-	if e.Content == name && e.containsAttrs(attrs) {
-		tags = append(tags, e)
-	}
-
-	for _, child := range e.Children {
-		founds := child.Find(name, attrs)
-		tags = append(tags, founds...)
-	}
-	return
+func (e *Element) FindTag(name string) (tags []*Element) {
+	return e.findTag(name, nil)
 }
 
 func (e *Element) String() string {
@@ -107,6 +99,22 @@ func (e *Element) Text() string {
 		}
 	}
 	return strings.Join(contents, "")
+}
+
+func (e *Element) findTag(name string, attrs Attributes) (tags []*Element) {
+	if e.Type == TextType {
+		return
+	}
+
+	if e.Content == name && e.containsAttrs(attrs) {
+		tags = append(tags, e)
+	}
+
+	for _, child := range e.Children {
+		founds := child.Find(name, attrs)
+		tags = append(tags, founds...)
+	}
+	return
 }
 
 func (e *Element) containsAttrs(attrs Attributes) bool {
