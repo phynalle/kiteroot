@@ -71,12 +71,20 @@ func (e *Element) Attribute(key string) string {
 	return e.Attrs[key]
 }
 
-func (e *Element) Find(name string, attrs Attributes) (tags []*Element) {
-	return e.findTag(name, attrs)
+func (e *Element) FindWithAttrs(name string, attrs Attributes) *Element {
+	return e.findOne(name, attrs)
 }
 
-func (e *Element) FindTag(name string) (tags []*Element) {
-	return e.findTag(name, nil)
+func (e *Element) Find(name string) *Element {
+	return e.findOne(name, nil)
+}
+
+func (e *Element) FindAllWithAttrs(name string, attrs Attributes) []*Element {
+	return e.findAll(name, attrs)
+}
+
+func (e *Element) FindAll(name string) []*Element {
+	return e.findAll(name, nil)
 }
 
 func (e *Element) String() string {
@@ -101,7 +109,25 @@ func (e *Element) Text() string {
 	return strings.Join(contents, "")
 }
 
-func (e *Element) findTag(name string, attrs Attributes) (tags []*Element) {
+func (e *Element) findOne(name string, attrs Attributes) *Element {
+	if e.Type == TextType {
+		return nil
+	}
+
+	if e.Content == name && e.containsAttrs(attrs) {
+		return e
+	}
+
+	for _, child := range e.Children {
+		founds := child.findOne(name, attrs)
+		if founds != nil {
+			return founds
+		}
+	}
+	return nil
+}
+
+func (e *Element) findAll(name string, attrs Attributes) (tags []*Element) {
 	if e.Type == TextType {
 		return
 	}
@@ -111,7 +137,7 @@ func (e *Element) findTag(name string, attrs Attributes) (tags []*Element) {
 	}
 
 	for _, child := range e.Children {
-		founds := child.Find(name, attrs)
+		founds := child.findAll(name, attrs)
 		tags = append(tags, founds...)
 	}
 	return

@@ -1,6 +1,7 @@
 package kiteroot
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -84,13 +85,12 @@ func TestTagString(t *testing.T) {
 	br.selfClosing = true
 
 	tag.Append(&br)
-
-	found := tag.Find("br", MakeAttrs("class", "correct"))
+	found := tag.FindAllWithAttrs("br", MakeAttrs("class", "correct"))
 	if len(found) != 1 {
 		t.Fail()
 	}
-	found = tag.Find("br", MakeAttrs("class", "wrong"))
-	if len(found) != 0 {
+	elem := tag.FindWithAttrs("br", MakeAttrs("class", "wrong"))
+	if elem != nil {
 		t.Fail()
 	}
 
