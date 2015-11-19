@@ -38,7 +38,7 @@ ParseIterator:
 			tag := NewTag(t.Data, sc)
 
 			for _, attr := range t.Attr {
-				tag.SetAttr(attr.Key, attr.Val)
+				tag.SetAttribute(attr.Key, attr.Val)
 			}
 
 			cur := st.Top()

@@ -63,11 +63,11 @@ func (e *Element) Append(elem *Element) {
 	e.Children = append(e.Children, elem)
 }
 
-func (e *Element) SetAttr(key, value string) {
+func (e *Element) SetAttribute(key, value string) {
 	e.Attrs[key] = value
 }
 
-func (e *Element) Attr(key string) (string, bool) {
+func (e *Element) Attribute(key string) (string, bool) {
 	val, ok := e.Attrs[key]
 	return val, ok
 }
