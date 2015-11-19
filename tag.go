@@ -67,9 +67,8 @@ func (e *Element) SetAttribute(key, value string) {
 	e.Attrs[key] = value
 }
 
-func (e *Element) Attribute(key string) (string, bool) {
-	val, ok := e.Attrs[key]
-	return val, ok
+func (e *Element) Attribute(key string) string {
+	return e.Attrs[key]
 }
 
 func (e *Element) Find(name string, attrs Attributes) (tags []*Element) {
