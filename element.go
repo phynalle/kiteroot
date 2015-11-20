@@ -3,7 +3,6 @@ package kiteroot
 import (
 	"bytes"
 	"fmt"
-	_ "golang.org/x/net/html"
 	"strings"
 )
 
@@ -75,16 +74,16 @@ func (e *Element) FindWithAttrs(name string, attrs Attributes) *Element {
 	return e.findOne(name, attrs)
 }
 
-func (e *Element) Find(name string) *Element {
-	return e.findOne(name, nil)
+func (e *Element) Find(name string, attrs ...string) *Element {
+	return e.findOne(name, MakeAttrs(attrs...))
 }
 
 func (e *Element) FindAllWithAttrs(name string, attrs Attributes) []*Element {
 	return e.findAll(name, attrs)
 }
 
-func (e *Element) FindAll(name string) []*Element {
-	return e.findAll(name, nil)
+func (e *Element) FindAll(name string, attrs ...string) []*Element {
+	return e.findAll(name, MakeAttrs(attrs...))
 }
 
 func (e *Element) String() string {
