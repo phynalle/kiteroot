@@ -1,7 +1,6 @@
 package kiteroot
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
