@@ -198,7 +198,7 @@ func MakeAttrs(s ...string) (attrs Attributes) {
 
 func containsAttrs(base Attributes, attrs Attributes) bool {
 	for key, val := range attrs {
-		if v, ok := base[key]; ok && v != val {
+		if v, ok := base[key]; !ok || v != val {
 			return false
 		}
 	}
