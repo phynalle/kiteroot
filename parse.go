@@ -13,9 +13,8 @@ var (
 )
 
 func Parse(r io.Reader) (*Element, error) {
-	z := html.NewTokenizer(r)
-
 	var st Stack
+	z := html.NewTokenizer(r)
 	doc := NewDocument()
 	st.Push(doc)
 
@@ -36,17 +35,14 @@ ParseIterator:
 			t := z.Token()
 			sc := selfClosingTagMap[t.Data] || tt == html.SelfClosingTagToken
 			tag := NewTag(t.Data, sc)
-
 			for _, attr := range t.Attr {
 				tag.SetAttribute(attr.Key, attr.Val)
 			}
-
 			cur := st.Top()
 			if cur == nil {
 				return nil, ErrInvalidPair
 			}
 			cur.Append(tag)
-
 			if !sc {
 				st.Push(tag)
 			}
@@ -56,7 +52,6 @@ ParseIterator:
 			if selfClosingTagMap[t.Data] {
 				continue
 			}
-
 			if cur := st.Pop(); cur == nil || cur.Content != t.Data {
 				return nil, ErrInvalidPair
 			}
@@ -66,17 +61,14 @@ ParseIterator:
 			if cur == nil {
 				return nil, ErrInvalidPair
 			}
-
 			s := string(z.Text())
 			if s == "\n" {
 				continue
 			}
-
 			text := NewText(strings.TrimSpace(s))
 			cur.Append(text)
 		}
 	}
-
 	if st.Len() != 1 {
 		return nil, ErrInvalidPair
 	}

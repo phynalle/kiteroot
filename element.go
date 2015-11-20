@@ -113,11 +113,9 @@ func (e *Element) findOne(name string, attrs Attributes) *Element {
 	if e.Type == TextType {
 		return nil
 	}
-
 	if e.Content == name && e.containsAttrs(attrs) {
 		return e
 	}
-
 	for _, child := range e.Children {
 		founds := child.findOne(name, attrs)
 		if founds != nil {
@@ -131,11 +129,9 @@ func (e *Element) findAll(name string, attrs Attributes) (tags []*Element) {
 	if e.Type == TextType {
 		return
 	}
-
 	if e.Content == name && e.containsAttrs(attrs) {
 		tags = append(tags, e)
 	}
-
 	for _, child := range e.Children {
 		founds := child.findAll(name, attrs)
 		tags = append(tags, founds...)
@@ -156,16 +152,13 @@ func (e *Element) toTagString() string {
 	for k, v := range e.Attrs {
 		attrs = append(attrs, fmt.Sprintf("%s=\"%s\"", k, v))
 	}
-
 	var buf bytes.Buffer
 	buf.WriteRune('<')
 	buf.WriteString(e.Content)
-
 	if len(attrs) > 0 {
 		buf.WriteRune(' ')
 		buf.WriteString(strings.Join(attrs, " "))
 	}
-
 	if e.selfClosing {
 		buf.WriteString(" />")
 	} else {
@@ -193,12 +186,10 @@ func (e *Element) childrenText() string {
 type Attributes map[string]string
 
 func MakeAttrs(s ...string) (attrs Attributes) {
-	attrs = make(map[string]string)
-
+	attrs = make(Attributes)
 	if len(s)%2 == 1 {
 		s = s[:len(s)-1]
 	}
-
 	for i := 0; i < len(s); i += 2 {
 		attrs[s[i]] = s[i+1]
 	}
