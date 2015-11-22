@@ -8,11 +8,29 @@ import (
 	"golang.org/x/net/html"
 )
 
-var (
-	ErrInvalidPair = errors.New("open/close tag mismatched")
-)
+// ErrInvalidPair is error returned by failures to parse an HTML. 
+var ErrInvalidPair = errors.New("open/close tag mismatched")
 
-// Parse returns element tree for the HTML from the given Reader.
+var isSelfClosingTag = map[string]bool{
+	"area": true,
+	"base": true,
+	"br": true,
+	"col": true,
+	"command": true,
+	"embed": true,
+	"hr": true,
+	"img": true,
+	"input": true,
+	"keygen": true,
+	"link": true,
+	"meta": true,
+	"param": true,
+	"source": true,
+	"track": true,
+	"wbr": true,
+}
+
+// Parse returns an document element tree for the HTML from the given Reader.
 func Parse(r io.Reader) (*Element, error) {
 	var st Stack
 	z := html.NewTokenizer(r)
@@ -34,7 +52,7 @@ ParseIterator:
 
 		case html.SelfClosingTagToken:
 			t := z.Token()
-			sc := selfClosingTagMap[t.Data] || tt == html.SelfClosingTagToken
+			sc := isSelfClosingTag[t.Data] || tt == html.SelfClosingTagToken
 			tag := NewTag(t.Data, sc)
 
 			for _, attr := range t.Attr {
@@ -53,7 +71,7 @@ ParseIterator:
 
 		case html.EndTagToken:
 			t := z.Token()
-			if selfClosingTagMap[t.Data] {
+			if isSelfClosingTag[t.Data] {
 				continue
 			}
 			if cur := st.Pop(); cur == nil || cur.Content != t.Data {

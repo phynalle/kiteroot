@@ -6,12 +6,6 @@ import (
 	"strings"
 )
 
-var selfClosingTagList = []string{
-	"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
-	"keygen", "link", "meta", "param", "source", "track", "wbr",
-}
-var selfClosingTagMap map[string]bool
-
 // These are types for Element
 const (
 	DocumentType ElementType = iota
@@ -173,7 +167,7 @@ func (e *Element) makeDocumentContent() string {
 	return e.makeChildrenText()
 }
 
-// makeTagContent returns a tag-formatted string. 
+// makeTagContent returns a tag-formatted string.
 // if this element is self-closing tag, its children elements is ignored.
 func (e *Element) makeTagContent() string {
 	var attrs []string
@@ -219,7 +213,7 @@ func (e *Element) makeChildrenText() string {
 // so, if length of string slice is odd number, the last is dropped.
 func MakeAttrs(s ...string) (attrs Attributes) {
 	attrs = make(Attributes)
-	
+
 	if len(s)%2 == 1 {
 		s = s[:len(s)-1]
 	}
@@ -238,12 +232,4 @@ func containsAttrs(base Attributes, attrs Attributes) bool {
 		}
 	}
 	return true
-}
-
-func init() {
-	// Move self-closing-tag list to map because it is more efficient to find a tag.
-	selfClosingTagMap = make(map[string]bool)
-	for _, tn := range selfClosingTagList {
-		selfClosingTagMap[tn] = true
-	}
 }
