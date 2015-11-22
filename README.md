@@ -17,7 +17,8 @@ To find tags after parse, you can use find functions: Find, FindAll, FindWithAtt
     }
     
     // you can also find a tag containing specific attributes.
-    title := doc.FindWithAttrs("span", kiteroot.MakeAttrs("class", "title")) // And it is same as: doc.Find("span", "class", "title")
+    title := doc.FindWithAttrs("span", kiteroot.MakeAttrs("class", "title"))
+    // And it is same with: title := doc.Find("span", "class", "title")
     
     
     

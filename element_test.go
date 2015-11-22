@@ -84,7 +84,7 @@ func TestTagString(t *testing.T) {
 	br.selfClosing = true
 
 	tag.Append(&br)
-	found := tag.FindAllWithAttrs("br", MakeAttrs("class", "correct"))
+	found := tag.FindAll("br", "class", "correct")
 	if len(found) != 1 {
 		t.Fail()
 	}
