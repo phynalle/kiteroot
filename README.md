@@ -1,9 +1,9 @@
 # kiteroot
-kiteroot is a easy-to-use html parser for Go.
+kiteroot is a convenient tool to play with html tag for Go.
 
 The project is inspired by [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/) written for Python.
 
-To find tags after parse, you can use find functions: Find, FindAll, FindWithAttrs, FindAllWithAttrs.
+To select tags after parse, you can use these functions: Find, FindAll, FindWithAttrs, FindAllWithAttrs.
 
     var r io.Reader
     ...
