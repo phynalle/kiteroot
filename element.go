@@ -12,18 +12,23 @@ var selfClosingTagList = []string{
 }
 var selfClosingTagMap map[string]bool
 
+// These are types for Element
 const (
 	DocumentType ElementType = iota
 	TagType
 	TextType
 )
 
-const (
-	LineSeparator = "\n"
-)
+// LineSeparator is the carrage return.
+const LineSeparator = "\n"
 
+// An Attributes stores key/value attribute pairs in the tag.
+type Attributes map[string]string
+
+// An ElementType is the type of Element.
 type ElementType uint32
 
+// An Element consists of ElementType and Content
 type Element struct {
 	Type     ElementType
 	Content  string
@@ -33,21 +38,24 @@ type Element struct {
 	selfClosing bool
 }
 
+// NewDocument returns a new document type element.
 func NewDocument() *Element {
 	return &Element{
 		Type: DocumentType,
 	}
 }
 
-func NewTag(name string, sc bool) *Element {
+// NewTag returns tag typed element for the given name and selfClosing.
+func NewTag(name string, selfClosing bool) *Element {
 	return &Element{
 		Type:        TagType,
 		Content:     name,
 		Attrs:       make(map[string]string),
-		selfClosing: sc,
+		selfClosing: selfClosing,
 	}
 }
 
+// NewText returns a new text type element for the given content.
 func NewText(content string) *Element {
 	return &Element{
 		Type:    TextType,
@@ -55,6 +63,7 @@ func NewText(content string) *Element {
 	}
 }
 
+// Append appends an element into its children slice in this element.
 func (e *Element) Append(elem *Element) {
 	if e == elem {
 		return
@@ -62,42 +71,55 @@ func (e *Element) Append(elem *Element) {
 	e.Children = append(e.Children, elem)
 }
 
+// SetAttribute puts the given key-value pair into the attribute map in this element.
 func (e *Element) SetAttribute(key, value string) {
 	e.Attrs[key] = value
 }
 
+// Attribute returns the value matching with the key.  if the Attrs doesn't have the key,
+// empty string is returned.
 func (e *Element) Attribute(key string) string {
 	return e.Attrs[key]
 }
 
-func (e *Element) FindWithAttrs(name string, attrs Attributes) *Element {
-	return e.findOne(name, attrs)
+// FindWithAttrs returns an element containing attrs with the same tag in the subelements.
+// if no such element exists, returns nil.
+func (e *Element) FindWithAttrs(tagName string, attrs Attributes) *Element {
+	return e.findOne(tagName, attrs)
 }
 
-func (e *Element) Find(name string, attrs ...string) *Element {
-	return e.findOne(name, MakeAttrs(attrs...))
+// Find returns an element containing attrs with the same tag throughout its subelements.
+// if no element is found, this function returns nil.
+// attrs is mapped to Attributes by calling MakeAttrs
+func (e *Element) Find(tagName string, attrs ...string) *Element {
+	return e.findOne(tagName, MakeAttrs(attrs...))
 }
 
-func (e *Element) FindAllWithAttrs(name string, attrs Attributes) []*Element {
-	return e.findAll(name, attrs)
+// FindAllWithAttrs returns all elements containing attrs with the same tag in the subelements.
+func (e *Element) FindAllWithAttrs(tagName string, attrs Attributes) []*Element {
+	return e.findAll(tagName, attrs)
 }
 
-func (e *Element) FindAll(name string, attrs ...string) []*Element {
-	return e.findAll(name, MakeAttrs(attrs...))
+// FindAll returns all elements containing attrs with the same tag in the subelements.
+// attrs is mapped to Attributes by calling MakeAttrs
+func (e *Element) FindAll(tagName string, attrs ...string) []*Element {
+	return e.findAll(tagName, MakeAttrs(attrs...))
 }
 
+// String returns a content according to its type.
 func (e *Element) String() string {
 	switch e.Type {
 	case DocumentType:
-		return e.toDocumentString()
+		return e.makeDocumentContent()
 	case TagType:
-		return e.toTagString()
+		return e.makeTagContent()
 	case TextType:
-		return e.toTextString()
+		return e.makeTextContent()
 	}
 	return ""
 }
 
+// Text returns a concatenated text of TextType elements in the children.
 func (e *Element) Text() string {
 	var contents []string
 	for _, child := range e.Children {
@@ -108,6 +130,7 @@ func (e *Element) Text() string {
 	return strings.Join(contents, "")
 }
 
+// findOne find an element containing the attributes with the same name.
 func (e *Element) findOne(name string, attrs Attributes) *Element {
 	if e.Type == TextType {
 		return nil
@@ -124,6 +147,7 @@ func (e *Element) findOne(name string, attrs Attributes) *Element {
 	return nil
 }
 
+// findAll returns a slice of elements containing the attributes with the same name.
 func (e *Element) findAll(name string, attrs Attributes) (tags []*Element) {
 	if e.Type == TextType {
 		return
@@ -138,19 +162,25 @@ func (e *Element) findAll(name string, attrs Attributes) (tags []*Element) {
 	return
 }
 
+// containsAttrs returns true if the attributes of the element contains
+// all of the given attributes.
 func (e *Element) containsAttrs(attrs Attributes) bool {
 	return containsAttrs(e.Attrs, attrs)
 }
 
-func (e *Element) toDocumentString() string {
-	return e.childrenText()
+// makeDocumentContent returns a concatenated text of its children elements.
+func (e *Element) makeDocumentContent() string {
+	return e.makeChildrenText()
 }
 
-func (e *Element) toTagString() string {
+// makeTagContent returns a tag-formatted string. 
+// if this element is self-closing tag, its children elements is ignored.
+func (e *Element) makeTagContent() string {
 	var attrs []string
 	for k, v := range e.Attrs {
 		attrs = append(attrs, fmt.Sprintf("%s=\"%s\"", k, v))
 	}
+
 	var buf bytes.Buffer
 	buf.WriteRune('<')
 	buf.WriteString(e.Content)
@@ -163,18 +193,20 @@ func (e *Element) toTagString() string {
 	} else {
 		buf.WriteString(">")
 		buf.WriteRune('\n')
-		buf.WriteString(e.childrenText())
+		buf.WriteString(e.makeChildrenText())
 		buf.WriteRune('\n')
 		buf.WriteString(fmt.Sprintf("</%s>", e.Content))
 	}
 	return buf.String()
 }
 
-func (e *Element) toTextString() string {
+// makeTextContent returns Content in this element.
+func (e *Element) makeTextContent() string {
 	return e.Content
 }
 
-func (e *Element) childrenText() string {
+// makeChildrenContent concatenates the string of its children, and returns it.
+func (e *Element) makeChildrenText() string {
 	var contents []string
 	for _, child := range e.Children {
 		contents = append(contents, child.String())
@@ -182,19 +214,23 @@ func (e *Element) childrenText() string {
 	return strings.Join(contents, LineSeparator)
 }
 
-type Attributes map[string]string
-
+// MakeAttrs returns Attribute consisting of pairs.
+// this function needs the even number of strings to make key/value pairs.
+// so, if length of string slice is odd number, the last is dropped.
 func MakeAttrs(s ...string) (attrs Attributes) {
 	attrs = make(Attributes)
+	
 	if len(s)%2 == 1 {
 		s = s[:len(s)-1]
 	}
+
 	for i := 0; i < len(s); i += 2 {
 		attrs[s[i]] = s[i+1]
 	}
 	return
 }
 
+// containsAttrs returns true if the given base attributes contains all of identical attributes in attrs.
 func containsAttrs(base Attributes, attrs Attributes) bool {
 	for key, val := range attrs {
 		if v, ok := base[key]; !ok || v != val {
@@ -205,6 +241,7 @@ func containsAttrs(base Attributes, attrs Attributes) bool {
 }
 
 func init() {
+	// Move self-closing-tag list to map because it is more efficient to find a tag.
 	selfClosingTagMap = make(map[string]bool)
 	for _, tn := range selfClosingTagList {
 		selfClosingTagMap[tn] = true

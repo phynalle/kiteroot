@@ -12,6 +12,7 @@ var (
 	ErrInvalidPair = errors.New("open/close tag mismatched")
 )
 
+// Parse returns element tree for the HTML from the given Reader.
 func Parse(r io.Reader) (*Element, error) {
 	var st Stack
 	z := html.NewTokenizer(r)
@@ -35,13 +36,16 @@ ParseIterator:
 			t := z.Token()
 			sc := selfClosingTagMap[t.Data] || tt == html.SelfClosingTagToken
 			tag := NewTag(t.Data, sc)
+
 			for _, attr := range t.Attr {
 				tag.SetAttribute(attr.Key, attr.Val)
 			}
+
 			cur := st.Top()
 			if cur == nil {
 				return nil, ErrInvalidPair
 			}
+
 			cur.Append(tag)
 			if !sc {
 				st.Push(tag)
