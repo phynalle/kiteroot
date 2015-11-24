@@ -8,26 +8,26 @@ import (
 	"golang.org/x/net/html"
 )
 
-// ErrInvalidPair is error returned by failures to parse an HTML. 
+// ErrInvalidPair is error returned by failures to parse an HTML.
 var ErrInvalidPair = errors.New("open/close tag mismatched")
 
 var isSelfClosingTag = map[string]bool{
-	"area": true,
-	"base": true,
-	"br": true,
-	"col": true,
+	"area":    true,
+	"base":    true,
+	"br":      true,
+	"col":     true,
 	"command": true,
-	"embed": true,
-	"hr": true,
-	"img": true,
-	"input": true,
-	"keygen": true,
-	"link": true,
-	"meta": true,
-	"param": true,
-	"source": true,
-	"track": true,
-	"wbr": true,
+	"embed":   true,
+	"hr":      true,
+	"img":     true,
+	"input":   true,
+	"keygen":  true,
+	"link":    true,
+	"meta":    true,
+	"param":   true,
+	"source":  true,
+	"track":   true,
+	"wbr":     true,
 }
 
 // Parse returns an document element tree for the HTML from the given Reader.
@@ -74,8 +74,14 @@ ParseIterator:
 			if isSelfClosingTag[t.Data] {
 				continue
 			}
-			if cur := st.Pop(); cur == nil || cur.Content != t.Data {
-				return nil, ErrInvalidPair
+
+			if !st.existsTag(t.Data) {
+				continue
+			}
+
+			cur := st.Pop()
+			for cur != nil && cur.Content != t.Data {
+				cur = st.Pop()
 			}
 
 		case html.TextToken:
@@ -91,6 +97,7 @@ ParseIterator:
 			cur.Append(text)
 		}
 	}
+
 	if st.Len() != 1 {
 		return nil, ErrInvalidPair
 	}

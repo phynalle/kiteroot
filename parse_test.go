@@ -54,7 +54,6 @@ func TestParseWebPages(t *testing.T) {
 				t.Errorf("[%s] %s", url, err)
 			}
 			wg.Done()
-
 		}(url)
 	}
 	wg.Wait()

@@ -32,3 +32,16 @@ func (s *Stack) Pop() (e *Element) {
 func (s *Stack) Len() int {
 	return len(*s)
 }
+
+func (s *Stack) existsTag(tag string) bool {
+	for _, e := range *s {
+		if e == nil {
+			continue
+		}
+
+		if e.Type == TagType && e.Content == tag {
+			return true
+		}
+	}
+	return false
+}
